@@ -1,0 +1,93 @@
+let trafficMap;  // Déclarer la variable globalement
+const currentDate = new Date();
+
+// Fonction pour demander le consentement de l'utilisateur
+function askUserConsent() {
+    // Affiche une boîte de dialogue autoriation user
+    const userConsent = confirm("Nous aimerions utiliser votre adresse IP pour améliorer votre expérience. Acceptez-vous ?");
+
+    if (userConsent) {
+        // L'utilisateur ok utilise IP
+        const userIpAddress = getGeolocation();  // Remplacez cela par votre propre méthode de collecte d'adresse IP.
+        console.log("Adresse IP de l'utilisateur :", userIpAddress);
+    } else {
+        // user not ok pour l'instant fait rien.
+        console.log("L'utilisateur a refusé le consentement.");
+    }
+}
+async function getTrafficData() {
+    try {
+        const response = await fetch('https://carto.g-ny.org/data/cifs/cifs_waze_v2.json');
+        const data = await response.json();
+        return data;
+    } catch (error) {
+        console.error('Error fetching traffic data:', error);
+        throw error;
+    }
+}
+
+async function initTrafficMap() {
+    askUserConsent();
+    try {
+        const userLocation = await getGeolocation();
+
+        if (userLocation) {
+            // carte localisation client
+            trafficMap = L.map('trafficMap').setView([userLocation.lat, userLocation.lon], 13);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(trafficMap);
+            const redMarker =new L.Icon({
+                iconUrl: '/Circulations/assets/logo/etoile.png',
+                iconSize: [35, 40],
+                iconAnchor: [12, 41],
+                popupAnchor: [1, -34],
+                shadowSize: [41, 41]
+            });
+
+            // marque emplacement avec l'icône rouge
+            L.marker([userLocation.lat, userLocation.lon], { icon: redMarker }).addTo(trafficMap)
+                .bindPopup('Votre emplacement').openPopup();
+        }
+
+        const trafficData = await getTrafficData();
+
+        if (trafficData && trafficData.incidents && Array.isArray(trafficData.incidents)) {
+            trafficData.incidents.forEach(point => {
+                if (point.location && point.location.polyline) {
+                    const polylineCoordinates = point.location.polyline.split(' ');
+                    const latitude = parseFloat(polylineCoordinates[0]);
+                    const longitude = parseFloat(polylineCoordinates[1]);
+
+                    if (!isNaN(latitude) && !isNaN(longitude)) {
+                        const endDate = new Date(point.endtime);
+                        if (!isNaN(endDate) && endDate > currentDate) {
+                            // Ajouter un marqueur à la carte pour les problèmes de trafic
+
+                            const trafficIcon = new L.Icon({
+                                iconUrl: '/Circulations/assets/logo/traffic-jam.png',
+                                iconSize: [25, 41],
+                                iconAnchor: [12, 41],
+                                popupAnchor: [1, -34],
+                                shadowSize: [41, 41]
+                            });
+                            L.marker([latitude, longitude], { icon: trafficIcon }).addTo(trafficMap)
+                                .bindPopup(`Problème de trafic: ${point.type}, Description: ${point.description}, Date de début : ${point.starttime}, Date de fin : ${point.endtime}`);
+                        } else {
+                            console.warn('Traffic issue has an end date in the past:', point);
+                        }
+                    } else {
+                        console.warn('Coordonnées de TrafficData invalides :', point);
+                    }
+                } else {
+                    console.warn('Données de localisation invalides ou manquantes :', point);
+                }
+            });
+        } else {
+            console.error('Format de données de trafic invalides:', trafficData);
+        }
+    } catch (error) {
+        console.error('Erreur initialisation de la carte :', error);
+    }
+}
+
+// Exemple d'utilisation
+initTrafficMap();
