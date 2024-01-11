@@ -9,7 +9,7 @@ async function getClientIP() {
     }
 }
 
-/*async function getGeolocation() {
+async function getGeolocation() {
     try {
         const clientIP = await getClientIP();
 
@@ -35,8 +35,8 @@ async function getClientIP() {
         console.error('Erreur fetch données données géolocalisation:', error);
         return null;
     }
-}*/
-async function getGeolocation(ip) {
+}
+/*async function getGeolocation(ip) {
     try {
         // Utilisation de coordonnées géographiques fixes (par exemple, Paris)
         const fixedCoordinates = { lon: 6.1862, lat: 48.6822 };
@@ -50,7 +50,7 @@ async function getGeolocation(ip) {
         console.error('Error fetching geolocation data:', error);
         return null;
     }
-}
+}*/
 async function initMap() {
     //const userIp = '37.174.216.209';
     const coordinates = await getGeolocation();
