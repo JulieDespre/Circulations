@@ -2,22 +2,30 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <title>Info Circulations... </title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard</title>
-    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
-    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="src/css/style.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+          integrity="SHA256-P4NXAOJBHIIN+HMNHRZRCF9TD/MIZYOHS5OBTRR9BMY="
+          crossorigin="">
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+            integrity="SHA256-20NQCCHB9CO0QIJJZRGUK2/Z9VM+KNIYXNV1LVTLZBO="
+            crossorigin="">
+    </script>
+
 </head>
 <body>
 
-<div id="map" style="height: 400px;"></div>
-<canvas id="covidChart" width="400" height="200"></canvas>
+<div id="carte" style="height: 400px;"></div>
+<canvas id="sras" width="400" height="200"></canvas>
 <div id="airQualityIcon"></div>
 
-<script src="scripts/geolocation.js"></script>
-<script src="scripts/traffic.js"></script>
-<script src="scripts/covid.js"></script>
-<script src="scripts/airquality.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script src="src/javascript/geolocalisation.js"></script>
+<script src="src/javascript/traffic.js"></script>
+<script src="src/javascript/sras.js"></script>
+<script src="src/javascript/qualiteAir.js"></script>
 
 </body>
 </html>
