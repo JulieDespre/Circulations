@@ -16,10 +16,9 @@ async function getTrafficData() {
 async function initTrafficMap() {
     //coordonnées Iut Charlemagne : 48.6822, 6.1862
     let trafficMap;
-
     try {
         const userLocation = await getGeolocation();
-
+        console.log('User location initTrafficMap:', userLocation);
         if (userLocation) {
             // carte localisation client
             trafficMap = L.map('trafficMap').setView([userLocation.lat, userLocation.lon], 13);
@@ -78,5 +77,5 @@ async function initTrafficMap() {
     }
 }
 
-// Exemple d'utilisation
+// Appel de la fonction principale
 initTrafficMap();

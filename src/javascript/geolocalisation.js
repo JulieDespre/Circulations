@@ -1,16 +1,14 @@
 
 export async function askUserConsent() {
-    return new Promise((resolve, reject) => {
+    return new Promise(async (resolve, reject) => {
         try {
-            // Affiche une boîte de dialogue autorisation utilisateur
             const userConsent = confirm("Nous aimerions utiliser votre adresse IP pour accéder à votre géolocalisation. Acceptez-vous ?");
 
             if (userConsent) {
-                // L'utilisateur a donné son consentement
-                resolve();
+                resolve(true);
             } else {
-                // L'utilisateur a refusé le consentement
-                reject("L'utilisateur a refusé le consentement");
+                console.log("L'utilisateur a refusé le consentement");
+                resolve(false); // Résoudre la promesse avec false en cas de refus
             }
         } catch (error) {
             console.error('Erreur dans la fonction askUserConsent :', error);
@@ -19,27 +17,50 @@ export async function askUserConsent() {
     });
 }
 
-export async function getClientIP() {
-    await askUserConsent();
-    let ipFixed = "91.174.180.34";//à changer pour une adresse qui me géolocalise à l'iut
-    try {
-        await askUserConsent();
-        let ipFixed = "91.174.180.34";//à changer pour une adresse qui me géolocalise à l'iut
-        const response = await fetch('https://ipinfo.io/json');
+export function getClientIP() {
+    const ipFixed = "37.167.101.59"; // géolocalise à l'IUT
+    let userConsentIp;
+    return askUserConsent()
 
-        if (response.status === 429) {
-            console.error('Trop de requêtes (erreur 429). Veuillez réessayer plus tard.');
-            return ipFixed;
-        }
+        .then(userConsent => {
+            userConsentIp = userConsent;
+            console.log("userConsent : ", userConsent);
+            console.log("premier then");
+            if (!userConsent) {
+                console.log("L'utilisateur a refusé le consentement");
+                return Promise.reject("L'utilisateur a refusé le consentement"); // Rejeter la promesse en cas de refus
+            }
 
-        const data = await response.json();
-        console.log('Client IP Address:', data.ip);
-        return data.ip;
-    } catch (error) {
-        console.error('Error fetching IP address:', error);
-        return ipFixed;
-    }
+            // Si le consentement est donné, effectuer la requête
+            return fetch('https://ipinfo.io/json');
+        })
+        .then(response => {
+            console.log("deuxieme then");
+            if (response.status === 429) {
+                console.log("userConsent 429: ", userConsentIp);
+                console.error('Trop de requêtes (erreur 429). Veuillez réessayer plus tard.');
+                return Promise.resolve(ipFixed); // Résoudre la promesse avec ipFixed en cas de statut 429
+            }
+
+            return response.ip;
+        })
+        .then(data => {
+            console.log("troisieme then");
+            if (data) {
+                console.log('Client IP Address:', data);
+                return data;
+            } else {
+                return null;
+            }
+        })
+        .catch(error => {
+            console.error('Erreur fetching IP address:', error);
+            return null;
+        });
 }
+
+// Reste du code inchangé...
+
 /*async function getClientIP() {
     try {
         const response = await fetch('https://ipinfo.io/json');
@@ -52,7 +73,8 @@ export async function getClientIP() {
 }*/
 
 export async function getGeolocation() {
-    let fixedCoordinates = { lon: 6.1862, lat: 48.6822};
+    // coordonnees fixees à Nancy
+    let fixedCoordinates = { lon: 6.1611, lat: 48.6828};
 
     try {
         // Obtenir l'adresse IP du client
@@ -60,20 +82,26 @@ export async function getGeolocation() {
 
         if (clientIP === null) {
             console.error('Erreur dans la récupération de l\'adresse IP. Trop de requêtes (erreur 429).');
-            return fixedCoordinates;
+            await initMapWithMessage("L\'utilisation de votre adresse IP a été refusée. La localisation par défaut est Nancy.")
         }else{
             const url = `http://ip-api.com/json/${clientIP}`;
             const response = await fetch(url);
-            const data = await response.json();
 
+            if (response.status === 429) {
+                console.error('Trop de requêtes (erreur 429). Veuillez réessayer plus tard.');
+                // Utiliser ipFixed pour obtenir la localisation
+                return getGeolocationIPFixe(clientIP);
+            }
+
+            const data = await response.json();
 
             if (data.lon && data.lat) {
                 const coordinates = { lon: data.lon, lat: data.lat };
-                console.log('Coordinates:', coordinates);
+                console.log('Coordinates geoloc:', coordinates);
 
                 // Vérifier si les coordonnées correspondent à Nancy (exemple)
                 const nancyCoordinates = { lon: 6.1836, lat: 48.6925 };
-                const distanceThreshold = 0.1; // Vous devrez ajuster cela en fonction de votre cas
+                const distanceThreshold = 100; // 100km autour de Nancy
 
                 if (
                     Math.abs(coordinates.lon - nancyCoordinates.lon) < distanceThreshold &&
@@ -98,19 +126,14 @@ export async function getGeolocation() {
 
 async function getGeolocationIPFixe(ip) {
     try {
-        // Utilisation de coordonnées géographiques fixes (par exemple, Paris)
-        let fixedCoordinates = { lon: 6.1862, lat: 48.6822};
-
-        // Simuler une pause de 1 seconde (1000 ms) pour illustrer un traitement asynchrone
-        await new Promise(resolve => setTimeout(resolve, 1000));
-
+        //ip fixe Nancy
+        let fixedCoordinates = { lon: 6.1862, lat: 48.6822 };
         console.log('Coordinates:', fixedCoordinates);
         return fixedCoordinates;
     } catch (error) {
         console.error('Error fetching geolocation data:', error);
         return null;
     }
-
 }
 async function getGeolocIut() {
     try {
@@ -127,14 +150,23 @@ async function getGeolocIut() {
     }
 }
 async function initMap() {
-    //coordonnées nancy : long : 6.1836 lat 48.6925
+    //coordonnées nancy place Stan : long : 6.1836 lat 48.6925
     const coordinates = {lon: 6.1836, lat: 48.6925};
-    console.log('Coordinates carte:', coordinates);
+    console.log('Coordinates carte initMap():', coordinates);
     if (coordinates) {
         const carte = L.map('carte').setView([coordinates.lat, coordinates.lon],14);
 
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(carte);
     }
 }
-// Exemple d'utilisation
+
+async function initMapWithMessage(message) {
+    // Afficher le message où vous le souhaitez dans votre interface utilisateur
+    console.log(message);
+    // Appeler initMap si nécessaire
+    await initMap();
+}
+
+// Appel de la fonction principale
+getGeolocation();
 
