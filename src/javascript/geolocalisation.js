@@ -101,7 +101,7 @@ export async function getGeolocation() {
 
                 // Vérifier si les coordonnées correspondent à Nancy (exemple)
                 const nancyCoordinates = { lon: 6.1836, lat: 48.6925 };
-                const distanceThreshold = 100; // 100km autour de Nancy
+                const distanceThreshold = 1; // 100km autour de Nancy
 
                 if (
                     Math.abs(coordinates.lon - nancyCoordinates.lon) < distanceThreshold &&
