@@ -1,20 +1,7 @@
-let trafficMap;  // Déclarer la variable globalement
+import { getGeolocation } from './geolocalisation.js';
 const currentDate = new Date();
 
-// Fonction pour demander le consentement de l'utilisateur
-function askUserConsent() {
-    // Affiche une boîte de dialogue autoriation user
-    const userConsent = confirm("Nous aimerions utiliser votre adresse IP pour améliorer votre expérience. Acceptez-vous ?");
 
-    if (userConsent) {
-        // L'utilisateur ok utilise IP
-        const userIpAddress = getGeolocation();  // Remplacez cela par votre propre méthode de collecte d'adresse IP.
-        console.log("Adresse IP de l'utilisateur :", userIpAddress);
-    } else {
-        // user not ok pour l'instant fait rien.
-        console.log("L'utilisateur a refusé le consentement.");
-    }
-}
 async function getTrafficData() {
     try {
         const response = await fetch('https://carto.g-ny.org/data/cifs/cifs_waze_v2.json');
@@ -27,10 +14,11 @@ async function getTrafficData() {
 }
 
 async function initTrafficMap() {
-    askUserConsent();
+    //coordonnées Iut Charlemagne : 48.6822, 6.1862
+    let trafficMap;
     try {
         const userLocation = await getGeolocation();
-
+        console.log('User location initTrafficMap:', userLocation);
         if (userLocation) {
             // carte localisation client
             trafficMap = L.map('trafficMap').setView([userLocation.lat, userLocation.lon], 13);
@@ -70,7 +58,12 @@ async function initTrafficMap() {
                                 shadowSize: [41, 41]
                             });
                             L.marker([latitude, longitude], { icon: trafficIcon }).addTo(trafficMap)
-                                .bindPopup(`Problème de trafic: ${point.type}, Description: ${point.description}, Date de début : ${point.starttime}, Date de fin : ${point.endtime}`);
+                            .bindPopup(`
+                                Problème de trafic: ${point.type}<br>
+                                Description: ${point.description}<br>
+                                Date de début : ${point.starttime}<br>
+                                Date de fin : ${point.endtime}
+                            `);
                         } else {
                             console.warn('Traffic issue has an end date in the past:', point);
                         }
@@ -89,5 +82,5 @@ async function initTrafficMap() {
     }
 }
 
-// Exemple d'utilisation
+// Appel de la fonction principale
 initTrafficMap();
