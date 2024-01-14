@@ -65,7 +65,7 @@ async function initTrafficMap() {
                                 Date de fin : ${point.endtime}
                             `);
                         } else {
-                            console.warn('Traffic issue has an end date in the past:', point);
+                            console.warn('le problème de traffique à une date antérieur à la date du jour :', point);
                         }
                     } else {
                         console.warn('Coordonnées de TrafficData invalides :', point);

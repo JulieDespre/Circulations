@@ -6,6 +6,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="src/css/style.css">
 
+    <link rel="icon" href="zombie.ico" type="image/x-icon">
+    <link rel="shortcut icon" href="zombie.ico" type="image/x-icon">
+
+
     <!-- bibliothèque pour la géolocalisation -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
           integrity="SHA256-P4NXAOJBHIIN+HMNHRZRCF9TD/MIZYOHS5OBTRR9BMY="
@@ -20,33 +24,29 @@
     <script src="https://unpkg.com/papaparse@5.3.0/papaparse.min.js"></script>
 
 
-
-
 </head>
 <body>
 
-<h1>   info circulations... </h1>
+<h1>   Info circulations... </h1>
 <h2> affichage du trafic routier :</h2>
-<div id="divGoeloc">
-    <h3> votre géolocalisation : </h3>
-    <div id="carte" style="height: 400px;"></div>
-</div>
 
 <div id="divTraffic">
-    <h3> affichage de l'état du traffic autour de vous :</h3>
+    <div id="divGoeloc">
+    <h3> Affichage de l'état du traffic autour de vous :</h3>
     <div id="trafficMap" style="height: 400px; width: 75%"></div>
 </div>
-
-
-<div id="srasMap" style="height: 400px; width: 75%">
-    <h2> affichage circulation des variants de sars-2 :</h2>
-    <canvas id="sras" width="400" height="200"></canvas>
 </div>
 
+
+<div id="srasMap">
+    <h2> affichage circulation des variants de sars-2 :</h2>
+    <label for="dateSelector">Sélectionnez une date :</label>
+    <select id="dateSelector"></select>
+    <canvas id="sras" width="50%" height="50%"></canvas>
+</div>
 
 <h2> affichage de la qualité de l'air :</h2>
 <div id="airqualityicon"></div>
-
 
 
 <!-- appel aux scripts personnalisés -->
@@ -54,7 +54,6 @@
 <script type="module" src="src/javascript/traffic.js"></script>
 <script type="module" src="src/javascript/sras.js"></script>
 <script type="module" src="src/javascript/qualiteAir.js"></script>
-
 
 </body>
 </html>
