@@ -38,7 +38,7 @@ export function getClientIP() {
             console.log("deuxieme then");
             if (response.status === 429) {
                 console.log("userConsent 429: ", userConsentIp);
-                console.error('Trop de requêtes (erreur 429). Veuillez réessayer plus tard.');
+                console.error('Trop de requêtes (erreur 429)');
                 return Promise.resolve(ipFixed); // Résoudre la promesse avec ipFixed en cas de statut 429
             }
 
@@ -59,18 +59,6 @@ export function getClientIP() {
         });
 }
 
-// Reste du code inchangé...
-
-/*async function getClientIP() {
-    try {
-        const response = await fetch('https://ipinfo.io/json');
-        const data = await response.json();
-        return data.ip;
-    } catch (error) {
-        console.error('Erreur de récuperation IP:', error);
-        return null;
-    }
-}*/
 
 export async function getGeolocation() {
     // coordonnees fixees à Nancy
@@ -82,7 +70,7 @@ export async function getGeolocation() {
 
         if (clientIP === null) {
             console.error('Erreur dans la récupération de l\'adresse IP. Trop de requêtes (erreur 429).');
-            await initMapWithMessage("L\'utilisation de votre adresse IP a été refusée. La localisation par défaut est Nancy.")
+            await initMapWithMessage("L\'utilisation de votre adresse IP a refusée. La localisation par défaut est Nancy.")
         }else{
             const url = `http://ip-api.com/json/${clientIP}`;
             const response = await fetch(url);
@@ -161,12 +149,23 @@ async function initMap() {
 }
 
 async function initMapWithMessage(message) {
-    // Afficher le message où vous le souhaitez dans votre interface utilisateur
-    console.log(message);
-    // Appeler initMap si nécessaire
-    await initMap();
+    // Créer un élément de message
+    const messageElement = document.createElement('div');
+    messageElement.className = 'default-location-message';
+    messageElement.textContent = message;
+
+    // Ajouter l'élément au document
+    const containerElement = document.getElementById('divGoeloc');
+    containerElement.appendChild(messageElement);
+
+    try {
+        // Appeler initMap
+        await initMap();
+    } catch (error) {
+        console.error('Erreur lors de l\'initialisation de la carte:', error);
+    } finally {
+    }
 }
 
-// Appel de la fonction principale
-getGeolocation();
+
 

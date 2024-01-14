@@ -58,7 +58,12 @@ async function initTrafficMap() {
                                 shadowSize: [41, 41]
                             });
                             L.marker([latitude, longitude], { icon: trafficIcon }).addTo(trafficMap)
-                                .bindPopup(`Problème de trafic: ${point.type}, Description: ${point.description}, Date de début : ${point.starttime}, Date de fin : ${point.endtime}`);
+                            .bindPopup(`
+                                Problème de trafic: ${point.type}<br>
+                                Description: ${point.description}<br>
+                                Date de début : ${point.starttime}<br>
+                                Date de fin : ${point.endtime}
+                            `);
                         } else {
                             console.warn('Traffic issue has an end date in the past:', point);
                         }
