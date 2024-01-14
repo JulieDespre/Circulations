@@ -1,3 +1,4 @@
+
 function getCSVData() {
     return fetch('https://static.data.gouv.fr/resources/variants-circulants-indicateurs-issus-du-sequencage-emergen/20240110-170034/flash-fra-2024-01-10-18h00.csv')
         .then(response => {
@@ -52,10 +53,10 @@ function prepareChartData(apiData) {
 }
 
 
-// Fonction pour créer un Donut Chart
+// Fonction pour créer un Donut Chart des différents variants
 function createDonutChart(data,nbdate) {
     //document.getElementById('sras').innerHTML = "";
-    const ctx = document.getElementById('sras').getContext('2d');
+    const ctx = document.getElementById('srasVariant').getContext('2d');
 
     if (window.donutChart) {
         window.donutChart.destroy();
@@ -66,7 +67,7 @@ function createDonutChart(data,nbdate) {
     const total = dateData.total;
 
     const chartData = {
-        labels: ['Variant 1 : alpha', 'Variant 2', 'Variant 3', 'Variant 4', 'Variant 5', 'Variant 6', 'Variant 7'],
+        labels: ['Variant 1 : alpha', 'Variant 2 : B.1.640', 'Variant 3 : Béta', 'Variant 4 : Delta', 'Variant 5 : Gamma', 'Variant 6 : Omicron', 'Variant 7 : Autres variants'],
         datasets: [{
             data: [
                 dateData.variant_1 || 0,
@@ -108,6 +109,64 @@ function dateSelector(groupedData) {
     createDonutChart(groupedData,0);
 }
 
+//creation graph prévalence sras
+function prepareChartDataPrev(apiData) {
+    const chartDataPrev = {
+        labels: [],
+        datasets: [{
+            label: 'Prévalence des cas de SARS-CoV-2 en France',
+            data: [],
+            backgroundColor: 'rgba(75, 192, 192, 0.2)',
+            borderColor: 'rgba(75, 192, 192, 1)',
+            borderWidth: 1,
+            fill: false,
+        }],
+    };
+
+    // Triez les données par date
+    /*apiData.sort((a, b) => new Date(a.deb_periode) - new Date(b.deb_periode));
+
+    apiData.forEach(entry => {
+        const date = new Date(entry.deb_periode);
+        const formattedDate = `${date.getMonth() + 1}/${date.getFullYear()}`;
+        const prevalence = (entry.n_tot / entry.population) * 100; // Vous devrez ajuster cela en fonction de vos données
+
+        chartDataPrev.labels.push(formattedDate);
+        chartDataPrev.datasets[0].data.push(prevalence);
+    });*/
+
+    return chartDataPrev;
+}
+
+function createLineChart(data) {
+    const ctx = document.getElementById('srasCas').getContext('2d');
+
+    const lineChart = new Chart(ctx, {
+        type: 'line',
+        data: data,
+        options: {
+            scales: {
+                x: {
+                    type: 'time',
+                    time: {
+                        unit: 'month',
+                    },
+                    title: {
+                        display: true,
+                        text: 'Date',
+                    },
+                },
+                y: {
+                    title: {
+                        display: true,
+                        text: 'Prévalence (%)',
+                    },
+                },
+            },
+        },
+    });
+}
+
 
 // Utilisation de la fonction
 getCSVData()
@@ -118,6 +177,8 @@ getCSVData()
         // Affichez les données groupées
         console.log('Données groupées APISras :', groupedData);
         dateSelector(groupedData);
+        const chartDataPrev = prepareChartDataPrev(apiData);
+        createLineChart(chartDataPrev);
 
     })
     .catch(error => {

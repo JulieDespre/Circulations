@@ -28,30 +28,41 @@
 <body>
 
 <h1>   Info circulations... </h1>
-<h2> affichage du trafic routier :</h2>
-
+<h2> Votre géolocalisation :</h2>
 <div id="divTraffic">
-    <div id="divGoeloc">
+    <div id="divGoeloc"></div>
     <h3> Affichage de l'état du traffic autour de vous :</h3>
     <div id="trafficMap" style="height: 400px; width: 75%"></div>
 </div>
+
+<h2>Votre Région :</h2>
+<div id="srasMapRegion">
+    <h2> Affichage de la prévalence des cas de SARS-CoV-2 :</h2>
+    <canvas id="srasCasReg" width="50%" height="50%"></canvas>
+    <h2> Affichage de la circulation des variants de SARS-CoV-2 :</h2>
+    <label for="dateSelectorReg"></label>
+    <select id="dateSelectorReg"></select>
+    <canvas id="srasVariantReg" width="50%" height="50%"></canvas>
 </div>
 
-
-<div id="srasMap">
-    <h2> affichage circulation des variants de sars-2 :</h2>
+<h2> En France :</h2>
+<div id="srasMapFrance">
+    <h2> Affichage de la prévalence des cas de SARS-CoV-2 :</h2>
+    <canvas id="srasCas" width="50%" height="50%"></canvas>
+    <h2> Affichage de la circulation des variants de SARS-CoV-2 :</h2>
     <label for="dateSelector">Sélectionnez une date :</label>
     <select id="dateSelector"></select>
-    <canvas id="sras" width="50%" height="50%"></canvas>
+    <canvas id="srasVariant" width="50%" height="50%"></canvas>
 </div>
 
-<h2> affichage de la qualité de l'air :</h2>
+<h2> Affichage de la qualité de l'air :</h2>
 <div id="airqualityicon"></div>
 
 
 <!-- appel aux scripts personnalisés -->
 <script type="module" src="src/javascript/geolocalisation.js"></script>
 <script type="module" src="src/javascript/traffic.js"></script>
+<script type="module" src="src/javascript/srasRegion.js"></script>
 <script type="module" src="src/javascript/sras.js"></script>
 <script type="module" src="src/javascript/qualiteAir.js"></script>
 
