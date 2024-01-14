@@ -111,46 +111,42 @@ function dateSelector(groupedData) {
 
 //creation graph prévalence sras
 function prepareChartDataPrev(apiData) {
-    const chartDataPrev = {
-        labels: [],
-        datasets: [{
-            label: 'Prévalence des cas de SARS-CoV-2 en France',
-            data: [],
-            backgroundColor: 'rgba(75, 192, 192, 0.2)',
-            borderColor: 'rgba(75, 192, 192, 1)',
-            borderWidth: 1,
-            fill: false,
-        }],
-    };
+    const chartDataPrev = {};
 
-    // Triez les données par date
-    /*apiData.sort((a, b) => new Date(a.deb_periode) - new Date(b.deb_periode));
+    //j'aimerais triez les données par date
 
     apiData.forEach(entry => {
-        const date = new Date(entry.deb_periode);
-        const formattedDate = `${date.getMonth() + 1}/${date.getFullYear()}`;
-        const prevalence = (entry.n_tot / entry.population) * 100; // Vous devrez ajuster cela en fonction de vos données
-
-        chartDataPrev.labels.push(formattedDate);
-        chartDataPrev.datasets[0].data.push(prevalence);
-    });*/
-
+        const date = entry.deb_periode;
+        if (!chartDataPrev[date]) {
+            chartDataPrev[date] = {date, total: 0};
+        }
+        chartDataPrev[date].total += entry.n;
+    });
     return chartDataPrev;
 }
 
 function createLineChart(data) {
-    const ctx = document.getElementById('srasCas').getContext('2d');
+    const dates = Object.keys(data);
+    const counts = dates.map(date => data[date].total);
+    const casSras = document.getElementById('srasCas').getContext('2d');
 
-    const lineChart = new Chart(ctx, {
+    window.lineChart = new Chart(casSras, {
         type: 'line',
-        data: data,
+        data: {
+            labels: Object.keys(data),
+            datasets: [{
+                label: 'Nombre de cas',
+                data: counts,
+                fill: false,
+                borderColor: '#2196F3',
+                borderWidth: 2,
+                tension: 0.1,
+            }],
+        },
         options: {
             scales: {
                 x: {
-                    type: 'time',
-                    time: {
-                        unit: 'month',
-                    },
+                    //type: 'string',
                     title: {
                         display: true,
                         text: 'Date',
@@ -158,8 +154,9 @@ function createLineChart(data) {
                 },
                 y: {
                     title: {
+                        beginAtZero: true,
                         display: true,
-                        text: 'Prévalence (%)',
+                        text: 'Nombres de cas',
                     },
                 },
             },
