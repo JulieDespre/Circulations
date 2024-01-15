@@ -1,3 +1,4 @@
+
 function getCSVData() {
     return fetch('https://static.data.gouv.fr/resources/variants-circulants-indicateurs-issus-du-sequencage-emergen/20240110-170034/flash-fra-2024-01-10-18h00.csv')
         .then(response => {
@@ -23,60 +24,139 @@ function parseCSV(csvData) {
     });
 }
 
-function prepareChartData(csvData) {
-    let labels = csvData.map(entry => entry.flash_variants);
-    let values = csvData.map(entry => entry.n);
+function prepareChartData(apiData) {
+    const groupedData = {};
 
-    return { labels, values };
+    // Parcourez les données de l'API et regroupez-les par date
+    apiData.forEach(entry => {
+        const date = entry.deb_periode;
+
+        if (!groupedData[date]) {
+            groupedData[date] = {
+                date,
+                variant_1: 0,
+                variant_2: 0,
+                variant_3: 0,
+                variant_4: 0,
+                variant_5: 0,
+                variant_6: 0,
+                variant_7: 0,
+            };
+        }
+
+        const variant = `variant_${entry.flash_variants}`;
+        groupedData[date][variant] += entry.n;
+        groupedData[date].total = entry.n_tot;
+    });
+
+    return groupedData;
 }
 
-// Utilisation de la fonction
-if (typeof Papa === 'undefined') {
-    console.error('PapaParse is not defined. Make sure the library is loaded.');
-} else {
-    getCSVData()
-        .then(csvData => parseCSV(csvData))
-        .then(parsedData => {
-            const chartData = prepareChartData(parsedData);
-            createDonutChart(chartData);
-        })
-        .catch(error => {
-            // Gérer les erreurs ici
-            console.error('Erreur lors de l\'analyse CSV :', error);
-        });
-}
 
-function createDonutChart(data) {
-    const ctx = document.getElementById('sras').getContext('2d');
+// Fonction pour créer un Donut Chart des différents variants
+function createDonutChart(data,nbdate) {
+    //document.getElementById('sras').innerHTML = "";
+    const ctx = document.getElementById('srasVariant').getContext('2d');
 
-    new Chart(ctx, {
+    if (window.donutChart) {
+        window.donutChart.destroy();
+    }
+
+    const date = Object.keys(data)[nbdate];
+    const dateData = data[date];
+    const total = dateData.total;
+
+    const chartData = {
+        labels: ['Variant 1 : alpha', 'Variant 2 : B.1.640', 'Variant 3 : Béta', 'Variant 4 : Delta', 'Variant 5 : Gamma', 'Variant 6 : Omicron', 'Variant 7 : Autres variants'],
+        datasets: [{
+            data: [
+                dateData.variant_1 || 0,
+                dateData.variant_2 || 0,
+                dateData.variant_3 || 0,
+                dateData.variant_4 || 0,
+                dateData.variant_5 || 0,
+                dateData.variant_6 || 0,
+                dateData.variant_7 || 0,
+            ],
+            backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#4CAF50', '#FF9800', '#9C27B0', '#795548'],
+            hoverBackgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#4CAF50', '#FF9800', '#9C27B0', '#795548'],
+        }],
+    };
+
+    window.donutChart = new Chart(ctx, {
         type: 'doughnut',
+        data: chartData,
+    });
+}
+
+function dateSelector(groupedData) {
+    const availableDates = Object.keys(groupedData);
+    //liste déroulante avec les dates disponibles
+    const dateSelect = document.getElementById('dateSelector');
+    availableDates.forEach(date => {
+            const option = document.createElement('option');
+            option.value = date;
+            option.textContent = date;
+            dateSelect.appendChild(option);
+    });
+    // mettre à jour le graphique, nouvelle date est sélectionnée
+    dateSelect.addEventListener('change', () => {
+        let nbDate = dateSelect.selectedIndex;
+
+        createDonutChart(groupedData,nbDate);
+    });
+    // Sélectionnez la dernière date par défaut
+    createDonutChart(groupedData,0);
+}
+
+//creation graph prévalence sras
+function prepareChartDataPrev(apiData) {
+    const chartDataPrev = {};
+
+    //j'aimerais triez les données par date
+
+    apiData.forEach(entry => {
+        const date = entry.deb_periode;
+        if (!chartDataPrev[date]) {
+            chartDataPrev[date] = {date, total: 0};
+        }
+        chartDataPrev[date].total += entry.n;
+    });
+    return chartDataPrev;
+}
+
+function createLineChart(data) {
+    const dates = Object.keys(data);
+    const counts = dates.map(date => data[date].total);
+    const casSras = document.getElementById('srasCas').getContext('2d');
+
+    window.lineChart = new Chart(casSras, {
+        type: 'line',
         data: {
-            labels: data.labels,
+            labels: Object.keys(data),
             datasets: [{
-                data: data.values,
-                backgroundColor: getRandomColors(data.labels.length),
+                label: 'Nombre de cas',
+                data: counts,
+                fill: false,
+                borderColor: '#2196F3',
+                borderWidth: 2,
+                tension: 0.1,
             }],
         },
         options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            legend: {
-                display:false,
-                position: 'right',
-            },
-            title: {
-                display: true,
-                text: 'Distribution des variants',
-            },
-            tooltips: {
-                callbacks: {
-                    label: (tooltipItem, data) => {
-                        const dataset = data.datasets[tooltipItem.datasetIndex];
-                        const total = dataset.data.reduce((sum, value) => sum + value, 0);
-                        const value = dataset.data[tooltipItem.index];
-                        const percentage = ((value / total) * 100).toFixed(2);
-                        return `${data.labels[tooltipItem.index]}: ${percentage}%`;
+            scales: {
+                x: {
+                    //type: 'string',
+                    title: {
+                        display: true,
+                        text: 'Date',
+                    },
+                },
+                y: {
+                    title: {
+                        beginAtZero: true,
+                        display: true,
+                        text: 'Nombres de cas',
                     },
                 },
             },
@@ -84,11 +164,21 @@ function createDonutChart(data) {
     });
 }
 
-function getRandomColors(numColors) {
-    // Génère des couleurs aléatoires pour le graphique
-    const colors = [];
-    for (let i = 0; i < numColors; i++) {
-        colors.push(`#${Math.floor(Math.random() * 16777215).toString(16)}`);
-    }
-    return colors;
-}
+
+// Utilisation de la fonction
+getCSVData()
+    .then(csvData => parseCSV(csvData))
+    .then(apiData => {
+        const groupedData = prepareChartData(apiData);
+
+        // Affichez les données groupées
+        console.log('Données groupées APISras :', groupedData);
+        dateSelector(groupedData);
+        const chartDataPrev = prepareChartDataPrev(apiData);
+        createLineChart(chartDataPrev);
+
+    })
+    .catch(error => {
+        // Gérer les erreurs ici
+        console.error('Erreur lors de l\'analyse CSV ou du traitement des données API :', error);
+    });

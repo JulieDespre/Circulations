@@ -142,9 +142,9 @@ async function initMap() {
     const coordinates = {lon: 6.1836, lat: 48.6925};
     console.log('Coordinates carte initMap():', coordinates);
     if (coordinates) {
-        const carte = L.map('carte').setView([coordinates.lat, coordinates.lon],14);
+        const trafficMap = L.map('trafficMap').setView([coordinates.lat, coordinates.lon],14);
 
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(carte);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(trafficMap);
     }
 }
 
