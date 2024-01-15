@@ -36,16 +36,19 @@
 </div>
 
 <h2>Votre Région :</h2>
-<label for="regionSelector">
+
+<label>
     Sélectionnez une région :
+    <select class="regionSelector"></select>
 </label>
-<select id="regionSelector"></select>
 <div id="srasMapRegion">
     <h2> Affichage de la prévalence des cas de SARS-CoV-2 :</h2>
     <canvas id="srasCasReg" width="50%" height="50%"></canvas>
     <h2> Affichage de la circulation des variants de SARS-CoV-2 :</h2>
-    <label for="dateSelectorReg"></label>
-    <select id="dateSelectorReg"></select>
+    <label>
+        Sélectionnez une région :
+        <select class="regionSelector"></select>
+    </label>
     <canvas id="srasVariantReg" width="50%" height="50%"></canvas>
 </div>
 

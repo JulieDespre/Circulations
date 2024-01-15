@@ -138,7 +138,7 @@ function createLineChart(data) {
                 label: 'Nombre de cas',
                 data: counts,
                 fill: false,
-                borderColor: '#2196F3',
+                borderColor: 'grey',
                 borderWidth: 2,
                 tension: 0.1,
             }],

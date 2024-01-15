@@ -1,4 +1,4 @@
-
+import { getGeolocation} from './geolocalisation.js';
 function getCSVDataReg() {
     return fetch('https://www.data.gouv.fr/fr/datasets/r/c68e73c2-5045-4ee2-ac50-bd1c39ff3175')
         .then(response => {
@@ -90,33 +90,16 @@ function createDonutChartReg(data,nbdate) {
     });
 }
 
-function dateSelectorReg(groupedData) {
-    const availableDatesReg = Object.keys(groupedData);
-    //liste déroulante avec les dates disponibles
-    const dateSelect = document.getElementById('dateSelectorReg');
-    availableDatesReg.forEach(date => {
-        const option = document.createElement('option');
-        option.value = date;
-        option.textContent = date;
-        dateSelect.appendChild(option);
-    });
-    // mettre à jour le graphique, nouvelle date est sélectionnée
-    dateSelect.addEventListener('change', () => {
-        let nbDate = dateSelect.selectedIndex;
 
-        createDonutChartReg(groupedData,nbDate);
-    });
-    // Sélectionnez la dernière date par défaut
-    createDonutChartReg(groupedData,0);
-}
+
 //selection et créer les groupes de données
-function regionSelector(apiData) {
+async function regionSelector(apiData) {
     const regions = [...new Set(apiData.map(entry => entry.reg))];
-    const regionSelect = document.getElementById('regionSelector');
+    const regionSelect = document.querySelector('.regionSelector');
     regions.forEach(region => {
         const option = document.createElement('option');
         option.value = region;
-        option.textContent = `${regionNames[region] || region}`;;
+        option.textContent = `${regionNames[region] || region}`;
         regionSelect.appendChild(option);
     });
 
@@ -129,13 +112,30 @@ function regionSelector(apiData) {
         createLineChart(chartDataPrev);
     });
 
+    //sélectionner la région liée à l'adresse IP
+    try {
+        // Obtenir la géolocalisation
+        const coordinates = await getGeolocation();
+
+        if (coordinates) {
+            console.log('Coordonnées obtenues avec succès :', coordinates);
+
+
+        } else {
+
+        }
+    } catch (error) {
+        console.error('Erreur lors de l\'utilisation des fonctions de géolocalisation :', error);
+    }
+
+
     // Sélectionnez la première région par défaut
-    const initialRegion = regions[55];
+    const initialRegion = regions[13];
     const initialRegionData = apiData.filter(entry => entry.reg === initialRegion);
     const initialGroupedData = prepareChartDataReg(initialRegionData);
     dateSelectorReg(initialGroupedData);
     const initialChartDataPrev = prepareChartDataPrevReg(initialRegionData);
-    createLineChartReg(initialChartDataPrev);
+    createBarChartReg(initialChartDataPrev);
 }
 const regionNames = {
     '1': 'Guadeloupe',
@@ -175,7 +175,7 @@ function prepareChartDataPrevReg(apiData) {
     return chartDataPrevReg;
 }
 
-function createLineChartReg(data) {
+function createBarChartReg(data) {
     const datesReg = Object.keys(data);
     const countsReg = datesReg.map(date => data[date].total);
     const casSrasReg = document.getElementById('srasCasReg').getContext('2d');
@@ -188,7 +188,7 @@ function createLineChartReg(data) {
                 label: 'Nombre de cas',
                 data: countsReg,
                 fill: false,
-                borderColor: '#2196F3',
+                borderColor: 'mediumspringgreen',
                 borderWidth: 2,
                 tension: 0.1,
             }],
@@ -226,7 +226,7 @@ getCSVDataReg()
         console.log('Données groupées APISras :', groupedDataReg);
         dateSelectorReg(groupedDataReg);
         const chartDataPrevReg = prepareChartDataPrevReg(apiData);
-        createLineChartReg(chartDataPrevReg);
+        createBarChartReg(chartDataPrevReg);
 
     })
     .catch(error => {
