@@ -13,7 +13,7 @@ function getCSVDataReg() {
         });
 }
 
-function parseCSVReg(csvData) {
+function parseCSVReg(csvData)  {
     return new Promise((resolve, reject) => {
         Papa.parse(csvData, {
             header: true,
@@ -24,7 +24,7 @@ function parseCSVReg(csvData) {
     });
 }
 
-
+//regroupe les données par régions
 function prepareChartDataReg(apiData) {
     const groupedDataReg = {};
 
@@ -94,22 +94,22 @@ function createDonutChartReg(data,nbdate) {
 
 //selection et créer les groupes de données
 async function regionSelector(apiData) {
-    const regions = [...new Set(apiData.map(entry => entry.reg))];
-    const regionSelect = document.querySelector('.regionSelector');
+        const regions = [...new Set(apiData.map(entry => entry.reg))];
+        const regionSelect = document.querySelector('.regionSelector');
     regions.forEach(region => {
         const option = document.createElement('option');
         option.value = region;
         option.textContent = `${regionNames[region] || region}`;
         regionSelect.appendChild(option);
     });
-
+    //mettre à jour le graph
     regionSelect.addEventListener('change', () => {
         const selectedRegion = regionSelect.value;
         const regionData = apiData.filter(entry => entry.reg === selectedRegion);
         const groupedData = prepareChartDataReg(regionData);
-        dateSelectorReg(groupedData);
+        regionSelector(groupedData);
         const chartDataPrev = prepareChartDataPrev(regionData);
-        createLineChart(chartDataPrev);
+        createBarChartReg(chartDataPrev);
     });
 
     //sélectionner la région liée à l'adresse IP

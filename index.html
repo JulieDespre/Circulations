@@ -37,17 +37,13 @@
 
 <h2>Votre Région :</h2>
 
-<label>
-    Sélectionnez une région :
-    <select class="regionSelector"></select>
-</label>
 <div id="srasMapRegion">
     <h2> Affichage de la prévalence des cas de SARS-CoV-2 :</h2>
     <canvas id="srasCasReg" width="50%" height="50%"></canvas>
     <h2> Affichage de la circulation des variants de SARS-CoV-2 :</h2>
     <label>
         Sélectionnez une région :
-        <select class="regionSelector"></select>
+        <select id="regionSelector"></select>
     </label>
     <canvas id="srasVariantReg" width="50%" height="50%"></canvas>
 </div>
@@ -73,12 +69,10 @@
     <h2> Liens vers les APis utilisées :</h2>
 </div>
 
-
-
 <!-- appel aux scripts personnalisés -->
 <script type="module" src="src/javascript/geolocalisation.js"></script>
 <script type="module" src="src/javascript/traffic.js"></script>
-<script type="module" src="src/javascript/srasRegion.js"></script>
+<!--<script type="module" src="src/javascript/srasRegion.js"></script> -->
 <script type="module" src="src/javascript/sras.js"></script>
 <script type="module" src="src/javascript/qualiteAir.js"></script>
 
