@@ -79,7 +79,7 @@ function createDonutChart(data,nbdate) {
 
     const date = Object.keys(data)[nbdate];
     const dateData = data[date];
-    const total = dateData.total;
+
 
     const chartData = {
         labels: ['Variant 1 : alpha', 'Variant 2 : B.1.640', 'Variant 3 : Béta', 'Variant 4 : Delta', 'Variant 5 : Gamma', 'Variant 6 : Omicron', 'Variant 7 : Autres variants'],
@@ -301,17 +301,17 @@ function createBarChartReg(data) {
     const counts = regions.map(reg => data[reg].total);
     const casSras = document.getElementById('srasCasReg').getContext('2d');
 
-    window.lineChart = new Chart(casSras, {
-        type: 'line',
+    window.barChart = new Chart(casSras, {
+        type: 'bar',
         data: {
-            labels: Object.keys(data),
+            labels: ['Guadeloupe', 'Martinique','Guyane', 'La Réunion', 'Saint-Pierre-et-Miquelon','Mayotte', 'Saint-Barthélemy', 'Saint-Martin', 'Ile-de-France', 'Centre-Val de Loire', 'Bourgogne-Franche-Comté', 'Normandie', 'Hauts-de-France', 'Grand Est', 'Pays de la Loire', 'Bretagne', 'Nouvelle-Aquitaine', 'Occitanie', 'Auvergne-Rhône-Alpes', 'Provence-Alpes-Côte d’Azur', 'Corse'],
             datasets: [{
                 label: 'Nombre de cas',
                 data: counts,
                 fill: false,
-                borderColor: 'grey',
+                backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                borderColor: 'rgba(75, 192, 192, 1)',
                 borderWidth: 2,
-                tension: 0.1,
             }],
         },
         options: {
@@ -320,7 +320,7 @@ function createBarChartReg(data) {
                     //type: 'string',
                     title: {
                         display: true,
-                        text: 'Region',
+                        text: 'Régions',
                     },
                 },
                 y: {
