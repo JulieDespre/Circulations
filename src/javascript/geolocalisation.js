@@ -8,7 +8,7 @@ export async function askUserConsent() {
                 resolve(true);
             } else {
                 console.log("L'utilisateur a refusé le consentement");
-                resolve(false); // Résoudre la promesse avec false en cas de refus
+                resolve(true); // Résoudre la promesse avec false en cas de refus mit a true à cause de webetu
             }
         } catch (error) {
             console.error('Erreur dans la fonction askUserConsent :', error);

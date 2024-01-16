@@ -1,5 +1,3 @@
-
-
 function getCSVData() {
     return fetch('https://static.data.gouv.fr/resources/variants-circulants-indicateurs-issus-du-sequencage-emergen/20240110-170034/flash-fra-2024-01-10-18h00.csv')
         .then(response => {
@@ -213,7 +211,6 @@ function prepareChartDataPrevReg(apiData) {
     const chartDataPrev = {};
 
     //j'aimerais triez les données par date
-
     apiData.forEach(entry => {
         const reg = entry.reg;
         if (!chartDataPrev[reg]) {
