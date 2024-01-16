@@ -295,7 +295,7 @@ function regionSelector(groupedDataReg) {
     createBarChartReg(initialChartDataPrev);*/
 }
 
-function createLineChartReg(data) {
+function createBarChartReg(data) {
     console.log(data);
     const regions = Object.keys(data);
     const counts = regions.map(reg => data[reg].total);
@@ -395,12 +395,12 @@ getCSVDataReg()
     .then(apiData => {
 
         const groupedDataReg = prepareChartDataReg(apiData);
-        regionSelector(groupedDataReg);
+
         // Affichez les données groupées
         console.log('Données groupées APISras :', groupedDataReg);
         regionSelector(groupedDataReg);
         const chartDataPrevReg = prepareChartDataPrevReg(apiData);
-        createLineChartReg(chartDataPrevReg);
+        createBarChartReg(chartDataPrevReg);
 
     })
     .catch(error => {
